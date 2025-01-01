@@ -1,2 +1,24 @@
 # BigDataBowl_2025
-My submission for the NFL's Kaggle Competition, the Big Data Bowl 2025
+My submission for the NFL's Kaggle Competition, the Big Data Bowl 2025 https://www.kaggle.com/competitions/nfl-big-data-bowl-2025
+
+This is was one of my first projects where I'd used real-world "Big data" and presented me with many learning opportunities. The NFL conducts their "Big Data Bowl" competition on Kaggle annually, and this years competiton was centered around using data from pre-snap to make predictions or identify patterns that could be applied post-snap. To accomplish this task they provide entrants with a wide range of data, from tracking data for each player on the field (sampled at 10Hz), information about each game, player, and play, to derived stats like the expected number of points any given play is estimated to net a team.
+
+## Goal
+Initially my idea was to come up with some sort of way to measure or quantify a players fatigue over the course of a game, and this proved to be a somewhat lofty undertaking. I set off researching ways to measure or estimate this, and quickly realized the naivete of my goal. I realized that not only is fatigue highly subjective, but also that these are world class athletes. From some reading about similar projects and analysis done on professional soccer players in the UK, it seems that no matter how "fatigued" a player may be, they're still able to reach similar levels of performance, as measured by things like acceleration and velocity, though for decreasing time periods. Given the nature of American Football is one with more breaks for players to rest and recuperate, and the actual play time is short but explosive, I believe this to present an even bigger challenge to overcome than it might in another sport like soccer. 
+
+My goal evolved over the course of my research, but what the question I'd arrived at attempting to answer was whether you could predict the amount of energy a player would expend after the snap based on the amount of energy they'd expended up to that point in the game and during the pre-snap phase. 
+
+I was able to find research on metabolic energy expenditures in athletes that was quite helpful in trying to answer this question. From this research (which is below), I learned that metabolic expenditure could be calculated using a players acceleration. Energy spent based on acceleration can be related to the energy cost associated with running/walking on an incline treadmill at a steady speed, whereby the acceleration will vary the slope of said treadmill. Higher acceleration equates to a higher slope and more energy spent and vice-versa. This research builds upon past studies that sought to quantify metabolic costs of such steady state movement on an incline, so we're able to use the calculated angle of this hypothetical treadmill to estimate the metabolic energy cost associated with any particular movement in the tracking data based on the athletes acceleration using a polynomial equation. We can then calculate the metabolic power associated with this movement by multiplying that metabolic energy cost with their instantaneous velocity at that moment. This is what forms the basis of my project and what I sought to leverage to make predictions/inferences.
+
+In order to capture nuances in football that make it taxing to play that I thought wouldn't be incorporated in this feature I engineered various others, with varying levels of success/predictive strength. Some examples include changes in direction, which I calculate using the angle of the players motion, time since a player has been involved in a play, how many plays they've been involved in, that players average metabolic expenditure per play during the game, and how much time they've spent playing during that game. 
+
+Using these features and others, like their metabolic energy and power expenditure in the pre-snap window, I train a neural network using Keras to attempt to estimate how much power a player will expend after the snap. With this approach my neural network is typically able to achieve mean average errors around 685-700 watts, which is less than a standard deviation for the actual post-snap power expenditure, the statistics of which are below. As you might notice, there is quite a range in values for this metric, from 0 to 13000 watts, with the 75th percentile being around 2400. I found that by attempting to predict what would be more "typical" plays/performance, and filtering out the exceptional cases/tail ends of the distribution (limiting the training data to players on plays who output 3000 watts or less of metabolic power), the model is able to reach a MAE of around 480.
+
+![PostSnap Power Stats](https://github.com/user-attachments/assets/48de04a3-27a8-42bc-9a5c-6dd1ee40d99e)
+
+Obviously this project is far from perfect and could be improved, so if you have any suggestions they're more than welcomed.
+
+## Sources/Research
+https://pubmed.ncbi.nlm.nih.gov/16000549/ ,
+https://pubmed.ncbi.nlm.nih.gov/20010116/ ,
+https://pubmed.ncbi.nlm.nih.gov/12183501/
